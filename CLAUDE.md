@@ -32,6 +32,14 @@ Quarkus 3.31.4 service targeting **Java 25**, built with Maven. All I/O is non-b
 ./mvnw package -Dnative -Dquarkus.native.container-build=true
 ```
 
+## Design conventions
+
+All architectural change plans must be written to the `./design/` directory as markdown files before implementation begins.
+
+## Development conventions
+
+All features must be developed TDD-style: write the unit tests first, confirm they fail, then implement until they pass.
+
 ## Architecture
 
 ### Reactive-first throughout
