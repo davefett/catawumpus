@@ -76,6 +76,8 @@ All endpoints are secured via Bearer token (JWT) validated against Keycloak. Use
 
 In `dev` and `test` profiles, DevServices automatically starts a Keycloak container seeded from `src/main/resources/keycloak-realm-dev.json`. Production Keycloak is configured via env vars: `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`.
 
+**Important:** `quarkus.oidc.auth-server-url` must not be set in `dev`/`test` — its presence disables Keycloak DevServices entirely. It is scoped to `%prod` only.
+
 ### OpenTelemetry (`quarkus-opentelemetry`)
 Traces, metrics, and logs are exported via OTLP. The collector endpoint defaults to `http://localhost:4317` and is overridden in production via the `OTEL_EXPORTER_OTLP_ENDPOINT` env var. The OTel SDK is disabled entirely in `dev` and `test` profiles (`quarkus.otel.sdk.disabled=true`) — no collector is required locally.
 
