@@ -1,0 +1,115 @@
+{
+  "realm": "catawumpus",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "bruteForceProtected": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Full administrative access"
+      },
+      {
+        "name": "user",
+        "description": "Standard authenticated user"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "catawumpus-api",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "change-me",
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "protocol": "openid-connect",
+      "authorizationSettings": {
+        "allowRemoteResourceManagement": false,
+        "policyEnforcementMode": "ENFORCING",
+        "decisionStrategy": "UNANIMOUS",
+        "resources": [
+          {
+            "name": "Default Resource",
+            "type": "urn:catawumpus-api:resources:default",
+            "ownerManagedAccess": false,
+            "uris": ["/*"]
+          }
+        ],
+        "policies": [
+          {
+            "name": "Admin Role Policy",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"admin\",\"required\":true}]"
+            }
+          },
+          {
+            "name": "User Role Policy",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"user\",\"required\":true}]"
+            }
+          },
+          {
+            "name": "Default Permission",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "AFFIRMATIVE",
+            "config": {
+              "defaultResourceType": "urn:catawumpus-api:resources:default",
+              "applyPolicies": "[\"User Role Policy\"]"
+            }
+          }
+        ],
+        "scopes": []
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin-user",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@catawumpus.dev",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["admin", "user"]
+    },
+    {
+      "username": "regular-user",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "user@catawumpus.dev",
+      "firstName": "Regular",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
+    }
+  ]
+}
