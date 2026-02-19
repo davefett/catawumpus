@@ -40,6 +40,8 @@ All architectural change plans must be written to the `./design/` directory as m
 
 All features must be developed TDD-style: write the unit tests first, confirm they fail, then implement until they pass.
 
+Quarkus configuration changes (adding/removing extensions, updating platform version) must be made via the Quarkus CLI (`quarkus ext add`, `quarkus ext remove`, `quarkus update`) rather than editing `pom.xml` directly. The CLI is available at `~/.sdkman/candidates/quarkus/current/bin/quarkus`.
+
 ## Architecture
 
 ### Reactive-first throughout
@@ -68,6 +70,9 @@ Every layer must remain non-blocking. REST endpoints return `Uni<T>` or `Multi<T
 | `prod`  | `validate` | disabled |
 
 Production datasource is driven by env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`.
+
+### OpenTelemetry (`quarkus-opentelemetry`)
+Traces, metrics, and logs are exported via OTLP. The collector endpoint defaults to `http://localhost:4317` and is overridden in production via the `OTEL_EXPORTER_OTLP_ENDPOINT` env var. The OTel SDK is disabled entirely in `dev` and `test` profiles (`quarkus.otel.sdk.disabled=true`) — no collector is required locally.
 
 ### DevServices
 In `dev` and `test` profiles, Quarkus DevServices automatically provisions a PostgreSQL container — no local database setup is needed. Docker must be running.
