@@ -63,13 +63,22 @@ Every layer must remain non-blocking. REST endpoints return `Uni<T>` or `Multi<T
 - Top-level API metadata is in `application.properties` under `quarkus.smallrye-openapi.*`
 
 ### Configuration profiles
-| Profile | DB schema | Swagger UI |
-|---------|-----------|------------|
-| `dev`   | `drop-and-create` | enabled |
-| `test`  | `drop-and-create` | disabled |
-| `prod`  | `validate` | disabled |
+| Profile | DB schema | Swagger UI | Keycloak | OTel |
+|---------|-----------|------------|----------|------|
+| `dev`   | `drop-and-create` | enabled | DevServices container | SDK disabled |
+| `test`  | `drop-and-create` | disabled | DevServices container | SDK disabled |
+| `prod`  | `validate` | disabled | env vars | OTLP export enabled |
 
-Production datasource is driven by env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`.
+Production env vars: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`, `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`, `OTEL_EXPORTER_OTLP_ENDPOINT`.
+
+### Security (`quarkus-oidc` + `quarkus-keycloak-authorization`)
+All endpoints are secured via Bearer token (JWT) validated against Keycloak. Use `@RolesAllowed`, `@Authenticated`, or `@PermissionsAllowed` on resources. Fine-grained policies are enforced via Keycloak Authorization Services (`quarkus.keycloak.policy-enforcer.enable=true`).
+
+In `dev` and `test` profiles, DevServices automatically starts a Keycloak container seeded from `src/main/resources/keycloak-realm-dev.json`. Production Keycloak is configured via env vars: `KEYCLOAK_URL`, `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET`.
+
+**Important:** `quarkus.oidc.auth-server-url` must not be set in `dev`/`test` — its presence disables Keycloak DevServices entirely. It is scoped to `%prod` only.
+
+The Keycloak policy enforcer intercepts every request and errors on paths not registered as resources in Keycloak. Profile-specific indexed path properties (`%dev.quarkus.keycloak.policy-enforcer.paths[n]`) do not merge reliably with global indexed entries, so path exclusions cannot be used to selectively bypass enforcement per profile. The enforcer is therefore scoped to `%prod` only; `dev` and `test` rely on OIDC token validation and `@RolesAllowed` alone. In `%prod`, `/q/health/*`, `/q/metrics/*`, and `/q/openapi` are excluded via `enforcement-mode=DISABLED`.
 
 ### OpenTelemetry (`quarkus-opentelemetry`)
 Traces, metrics, and logs are exported via OTLP. The collector endpoint defaults to `http://localhost:4317` and is overridden in production via the `OTEL_EXPORTER_OTLP_ENDPOINT` env var. The OTel SDK is disabled entirely in `dev` and `test` profiles (`quarkus.otel.sdk.disabled=true`) — no collector is required locally.
