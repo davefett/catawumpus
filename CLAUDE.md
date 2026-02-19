@@ -78,7 +78,7 @@ In `dev` and `test` profiles, DevServices automatically starts a Keycloak contai
 
 **Important:** `quarkus.oidc.auth-server-url` must not be set in `dev`/`test` — its presence disables Keycloak DevServices entirely. It is scoped to `%prod` only.
 
-The Keycloak policy enforcer intercepts every request, including Quarkus-internal `/q/*` paths, and will error if those paths are not registered as resources in Keycloak. Always add `enforcement-mode=DISABLED` path entries for `/q/health/*`, `/q/metrics/*`, and `/q/openapi` in all profiles, and for all of `/q/*` in `dev`.
+The Keycloak policy enforcer intercepts every request and errors on paths not registered as resources in Keycloak. Profile-specific indexed path properties (`%dev.quarkus.keycloak.policy-enforcer.paths[n]`) do not merge reliably with global indexed entries, so path exclusions cannot be used to selectively bypass enforcement per profile. The enforcer is therefore scoped to `%prod` only; `dev` and `test` rely on OIDC token validation and `@RolesAllowed` alone. In `%prod`, `/q/health/*`, `/q/metrics/*`, and `/q/openapi` are excluded via `enforcement-mode=DISABLED`.
 
 ### OpenTelemetry (`quarkus-opentelemetry`)
 Traces, metrics, and logs are exported via OTLP. The collector endpoint defaults to `http://localhost:4317` and is overridden in production via the `OTEL_EXPORTER_OTLP_ENDPOINT` env var. The OTel SDK is disabled entirely in `dev` and `test` profiles (`quarkus.otel.sdk.disabled=true`) — no collector is required locally.
